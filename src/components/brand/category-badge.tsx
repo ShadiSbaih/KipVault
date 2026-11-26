@@ -15,7 +15,7 @@ const categoryImageMap: Record<string, { src: string; alt: string }> = {
 };
 
 /**
- * Framed category artwork badge rendering the DESIGN.md-themed PNG icons from public/.
+ * Framed category artwork badge rendering the KipVault-themed PNG icons from public/.
  */
 export function CategoryBadge({
   category,
