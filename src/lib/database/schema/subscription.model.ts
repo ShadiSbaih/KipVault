@@ -18,7 +18,7 @@ const subscriptionSchema: Schema<SubscriptionModel> = new Schema(
       ref: "User",
       required: true,
     },
-    selectedStorage: { type: Number, required: true, default: 16105174016 }, // in Bytes
+    selectedStorage: { type: Number, required: true, default: 1073741824 }, // 1 GB in Bytes
     usedStorage: { type: Number, required: true, default: 0 }, // in Bytes
   },
   { timestamps: true }

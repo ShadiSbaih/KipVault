@@ -13,13 +13,13 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import {
-  RiFilePdf2Fill,
-  RiHardDrive2Fill,
-  RiImageFill,
-  RiPieChart2Fill,
-  RiUserShared2Fill,
-  RiVideoFill,
-} from "@remixicon/react";
+  FileText,
+  Film,
+  HardDrive,
+  Image as ImageIcon,
+  Layers,
+  Users,
+} from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { usePathname } from "next/navigation";
@@ -30,85 +30,108 @@ const items = [
   {
     title: "Documents",
     url: "/dashboard/documents",
-    icon: RiFilePdf2Fill,
+    icon: FileText,
   },
   {
     title: "Images",
     url: "/dashboard/images",
-    icon: RiImageFill,
+    icon: ImageIcon,
   },
   {
     title: "Videos",
     url: "/dashboard/videos",
-    icon: RiVideoFill,
+    icon: Film,
   },
   {
     title: "Others",
     url: "/dashboard/others",
-    icon: RiPieChart2Fill,
+    icon: Layers,
   },
   {
     title: "Shared with me",
     url: "/dashboard/shared",
-    icon: RiUserShared2Fill,
+    icon: Users,
   },
   {
     title: "Storage",
     url: "/dashboard/storage",
-    icon: RiHardDrive2Fill,
+    icon: HardDrive,
   },
 ];
 
 export function AppSidebar() {
   const pathname = usePathname();
   const { state } = useSidebar();
+  const isCollapsed = state === "collapsed";
 
   return (
     <Sidebar
       collapsible="icon"
       className="border-r border-fog bg-paper text-ink"
     >
-      <SidebarContent className="bg-paper px-1">
-        <SidebarHeader className="pt-4">
-          <SidebarMenu className="space-y-4">
-            <SidebarMenuItem className="flex items-center px-2">
-              <Link href="/dashboard" className="w-fit">
+      <SidebarContent className="bg-paper px-2 group-data-[collapsible=icon]:px-0">
+        <SidebarHeader className="px-2 pt-4 pb-3 group-data-[collapsible=icon]:items-center group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:pb-4">
+          <SidebarMenu className="space-y-4 group-data-[collapsible=icon]:items-center">
+            <SidebarMenuItem
+              className={cn(
+                "flex items-center",
+                isCollapsed ? "justify-center px-0" : "px-2"
+              )}
+            >
+              <Link
+                href="/dashboard"
+                className="flex w-fit items-center justify-center"
+              >
                 <KipVaultLogo
                   size="sm"
-                  variant={state === "collapsed" ? "mark" : "default"}
-                  showWordmark={state !== "collapsed"}
+                  variant={isCollapsed ? "mark" : "default"}
+                  showWordmark={!isCollapsed}
                 />
               </Link>
             </SidebarMenuItem>
-            <SidebarMenuItem>
+            <SidebarMenuItem
+              className={cn(isCollapsed && "flex justify-center")}
+            >
               <SearchBar />
             </SidebarMenuItem>
           </SidebarMenu>
         </SidebarHeader>
 
-        <SidebarGroup>
+        <SidebarGroup className="px-2 py-2 group-data-[collapsible=icon]:border-t group-data-[collapsible=icon]:border-fog group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:pt-4">
           <SidebarGroupLabel className="px-3 font-display text-xs font-bold uppercase tracking-[-0.02em] text-mist">
             Vault Rooms
           </SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu className="space-y-1.5">
+            <SidebarMenu className="space-y-1.5 group-data-[collapsible=icon]:items-center group-data-[collapsible=icon]:gap-2 group-data-[collapsible=icon]:space-y-0">
               {items.map((item) => {
                 const isActive = pathname === item.url;
                 return (
-                  <SidebarMenuItem key={item.title}>
+                  <SidebarMenuItem
+                    key={item.title}
+                    className={cn(isCollapsed && "flex justify-center")}
+                  >
                     <SidebarMenuButton
                       asChild
                       tooltip={item.title}
                       className={cn(
                         "h-11 rounded-pill px-4 text-sm font-semibold tracking-[-0.018em] text-ink transition-colors",
+                        "group-data-[collapsible=icon]:!size-10 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:!p-0",
                         isActive
                           ? "border-[1.5px] border-ink bg-butter text-ink hover:bg-butter hover:text-ink"
                           : "border-[1.5px] border-transparent hover:bg-fog hover:text-ink"
                       )}
                     >
-                      <Link href={item.url}>
-                        <item.icon className="size-4 shrink-0" />
-                        <span>{item.title}</span>
+                      <Link
+                        href={item.url}
+                        className="flex items-center group-data-[collapsible=icon]:justify-center"
+                      >
+                        <item.icon
+                          className="size-[18px] shrink-0"
+                          strokeWidth={2}
+                        />
+                        <span className="group-data-[collapsible=icon]:hidden">
+                          {item.title}
+                        </span>
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>

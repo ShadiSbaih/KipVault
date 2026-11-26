@@ -1,12 +1,12 @@
 "use client";
 
 import { useSidebar } from "@/components/ui/sidebar";
+import { ChevronRight, Download, Loader2, Search } from "lucide-react";
 import {
-  RiArrowRightSLine,
-  RiFileDownloadFill,
-  RiLoader3Fill,
-  RiSearch2Fill,
-} from "@remixicon/react";
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import {
   ChangeEvent,
   Dispatch,
@@ -49,29 +49,36 @@ const SearchBar = () => {
         <button
           type="button"
           onClick={handleDialogOpen}
-          className="flex w-full items-center justify-between gap-2 rounded-accordion border-[1.5px] border-transparent bg-fog px-4 py-2.5 text-left text-sm font-medium tracking-[-0.018em] text-ink transition-colors hover:border-ink"
+          className="group/search flex w-full items-center justify-between gap-2 rounded-pill border-[1.5px] border-ink/20 bg-fog px-3.5 py-2 text-left text-sm font-medium tracking-[-0.018em] text-ink transition-colors hover:border-ink"
         >
           <span className="flex items-center gap-2.5">
-            <RiSearch2Fill className="size-4 text-ink" />
+            <Search className="size-4 shrink-0 text-ink" strokeWidth={2.1} />
             <span className="text-mist">Quick search...</span>
           </span>
 
-          <span className="flex size-6 items-center justify-center rounded-[6px] bg-mist text-paper">
-            <RiArrowRightSLine className="size-4" />
+          <span className="flex size-6 items-center justify-center rounded-full border border-ink/15 bg-paper text-ink transition-colors group-hover/search:border-ink group-hover/search:bg-butter">
+            <ChevronRight className="size-3.5" strokeWidth={2.25} />
           </span>
         </button>
       )}
 
       {state === "collapsed" && (
-        <Button
-          variant="outline"
-          size="icon"
-          className="mx-auto size-10"
-          onClick={handleDialogOpen}
-          aria-label="Quick search"
-        >
-          <RiSearch2Fill className="size-4" />
-        </Button>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="outline"
+              size="icon"
+              className="size-10 rounded-pill border-[1.5px] border-ink/20 bg-fog text-ink hover:border-ink hover:bg-butter"
+              onClick={handleDialogOpen}
+              aria-label="Quick search"
+            >
+              <Search className="size-[18px]" strokeWidth={2.1} />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent side="right" align="center">
+            Quick search
+          </TooltipContent>
+        </Tooltip>
       )}
 
       <SearchDialog
@@ -135,7 +142,7 @@ const SearchDialog = ({
 
         <div className="space-y-4">
           <div className="flex items-center gap-3 rounded-pill border-[1.5px] border-ink bg-fog px-4 py-1">
-            <RiSearch2Fill className="size-5 shrink-0 text-ink" />
+            <Search className="size-[18px] shrink-0 text-ink" strokeWidth={2.1} />
             <Input
               className="input bg-transparent px-0 text-base placeholder:text-mist"
               placeholder="Type a file name..."
@@ -143,7 +150,7 @@ const SearchDialog = ({
               onChange={handleChange}
             />
             {isSearching && (
-              <RiLoader3Fill className="size-5 shrink-0 animate-spin text-ink" />
+              <Loader2 className="size-5 shrink-0 animate-spin text-ink" />
             )}
           </div>
 
@@ -227,9 +234,9 @@ const SearchDisplayCard = ({ file }: { file: IFile }) => {
             }}
           >
             {!isLinkInProgress ? (
-              <RiFileDownloadFill className="size-4" />
+              <Download className="size-4" strokeWidth={2.1} />
             ) : (
-              <RiLoader3Fill className="size-4 animate-spin" />
+              <Loader2 className="size-4 animate-spin" />
             )}
           </Button>
         </div>

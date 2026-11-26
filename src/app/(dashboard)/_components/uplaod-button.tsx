@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { RiFileAddFill } from "@remixicon/react";
+import { CloudUpload } from "lucide-react";
 import { ChangeEvent, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -199,7 +199,7 @@ const UploadButton = () => {
           document.getElementById("file-upload")?.click();
         }}
       >
-        <RiFileAddFill />
+        <CloudUpload className="size-4" strokeWidth={2.1} />
         Upload
       </Button>
 

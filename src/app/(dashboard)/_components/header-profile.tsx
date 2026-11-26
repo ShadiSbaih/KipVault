@@ -13,7 +13,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { RiLogoutCircleFill } from "@remixicon/react";
+import { LogOut } from "lucide-react";
 
 const HeaderProfile = () => {
   const session = useSession();
@@ -52,7 +52,7 @@ const HeaderProfile = () => {
                 router.push("/sign-in");
               }}
             >
-              <RiLogoutCircleFill className="size-4" />
+              <LogOut className="size-4" strokeWidth={2} />
               <span>Log Out</span>
             </DropdownMenuItem>
           </DropdownMenuContent>

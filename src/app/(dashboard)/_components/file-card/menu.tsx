@@ -27,13 +27,13 @@ import {
 
 import { dynamicDownload, parseError } from "@/lib/utils";
 import {
-  RiDeleteBin7Fill,
-  RiFileEditFill,
-  RiFolderDownloadFill,
-  RiFolderSharedFill,
-  RiLoader3Fill,
-  RiShareFill,
-} from "@remixicon/react";
+  Download,
+  Loader2,
+  Mail,
+  Pencil,
+  Share2,
+  Trash2,
+} from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Dispatch, ReactNode, SetStateAction, useState } from "react";
 import { toast } from "sonner";
@@ -63,22 +63,22 @@ interface Action {
 const actions: Action[] = [
   {
     name: "Rename",
-    icon: <RiFileEditFill />,
+    icon: <Pencil className="size-4" strokeWidth={2} />,
     permissions: "file:update",
   },
   {
     name: "Share",
-    icon: <RiFolderSharedFill />,
+    icon: <Share2 className="size-4" strokeWidth={2} />,
     permissions: "file:read",
   },
   {
     name: "Download",
-    icon: <RiFolderDownloadFill />,
+    icon: <Download className="size-4" strokeWidth={2} />,
     permissions: "file:read",
   },
   {
     name: "Delete",
-    icon: <RiDeleteBin7Fill />,
+    icon: <Trash2 className="size-4" strokeWidth={2} />,
     permissions: "file:delete",
   },
 ];
@@ -138,7 +138,7 @@ const FileMenu = ({
           </DropdownMenuTrigger>
         ) : (
           <div className="flex size-9 items-center justify-center">
-            <RiLoader3Fill className="size-5 animate-spin text-ink" />
+            <Loader2 className="size-5 animate-spin text-ink" />
           </div>
         )}
         <DropdownMenuContent align="end" className="w-44 p-2">
@@ -316,7 +316,7 @@ export const ShareFileForm = ({
                   </FormLabel>
                   <FormControl>
                     <div className="flex items-center gap-3 rounded-pill border-[1.5px] border-ink bg-fog px-4 py-1">
-                      <RiShareFill className="size-4 shrink-0 text-ink" />
+                      <Mail className="size-4 shrink-0 text-ink" strokeWidth={2} />
                       <Input
                         className="input bg-transparent px-0"
                         placeholder="teammate@domain.com"
@@ -383,7 +383,7 @@ export const ShareFileForm = ({
               {!isLoading ? (
                 "Share Access"
               ) : (
-                <RiLoader3Fill className="animate-spin" />
+                <Loader2 className="size-4 animate-spin" />
               )}
             </Button>
           </form>
@@ -483,7 +483,7 @@ export const RenameFileForm = ({
                   </FormLabel>
                   <FormControl>
                     <div className="flex items-center gap-3 rounded-pill border-[1.5px] border-ink bg-fog px-4 py-1">
-                      <RiFileEditFill className="size-4 shrink-0 text-ink" />
+                      <Pencil className="size-4 shrink-0 text-ink" strokeWidth={2} />
                       <Input
                         className="input bg-transparent px-0"
                         placeholder="Enter new file name..."
@@ -499,7 +499,7 @@ export const RenameFileForm = ({
               {!isLoading ? (
                 "Save Name"
               ) : (
-                <RiLoader3Fill className="animate-spin" />
+                <Loader2 className="size-4 animate-spin" />
               )}
             </Button>
           </form>

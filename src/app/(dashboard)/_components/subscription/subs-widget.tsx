@@ -2,11 +2,11 @@
 
 import { P } from "@/components/custom/p";
 import {
-  RiHardDrive2Fill,
-  RiLoader3Fill,
-  RiShieldCheckFill,
-  RiUploadCloud2Fill,
-} from "@remixicon/react";
+  CloudUpload,
+  HardDrive,
+  Loader2,
+  ShieldCheck,
+} from "lucide-react";
 import { formatFileSize } from "@/lib/utils";
 import { Progress } from "@/components/ui/progress";
 import { ISubscription } from "@/lib/database/schema/subscription.model";
@@ -34,9 +34,9 @@ const StorageCard = ({ isLoading, subs }: Props) => {
             <div className="flex items-center gap-3">
               <div className="flex size-12 items-center justify-center rounded-chip border-[1.5px] border-ink bg-paper text-ink">
                 {!isLoading ? (
-                  <RiHardDrive2Fill className="size-6" />
+                  <HardDrive className="size-6" strokeWidth={2} />
                 ) : (
-                  <RiLoader3Fill className="size-6 animate-spin" />
+                  <Loader2 className="size-6 animate-spin" />
                 )}
               </div>
               <div>
@@ -88,7 +88,7 @@ const StorageCard = ({ isLoading, subs }: Props) => {
       <section className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <div className="rounded-card border-[1.5px] border-ink bg-paper p-6">
           <div className="mb-3 flex size-10 items-center justify-center rounded-chip bg-fog text-ink">
-            <RiShieldCheckFill className="size-5" />
+            <ShieldCheck className="size-5" strokeWidth={2} />
           </div>
           <h3 className="font-display text-2xl font-bold uppercase tracking-[-0.02em] text-ink">
             PINATA IPFS PINNING
@@ -101,7 +101,7 @@ const StorageCard = ({ isLoading, subs }: Props) => {
 
         <div className="rounded-card border-[1.5px] border-ink bg-paper p-6">
           <div className="mb-3 flex size-10 items-center justify-center rounded-chip bg-fog text-ink">
-            <RiUploadCloud2Fill className="size-5" />
+            <CloudUpload className="size-5" strokeWidth={2} />
           </div>
           <h3 className="font-display text-2xl font-bold uppercase tracking-[-0.02em] text-ink">
             LIVE QUOTA ACCOUNTING

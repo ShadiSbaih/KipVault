@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/card";
 import Link from "next/link";
 
-import { RiGoogleFill, RiLoader3Fill } from "@remixicon/react";
+import { Loader2 } from "lucide-react";
 import { authClient } from "@/lib/better-auth/auth-client";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
@@ -75,9 +75,19 @@ const AuthForm = ({ action }: Props) => {
           }}
         >
           {!isLoading ? (
-            <RiGoogleFill />
+            <svg
+              aria-hidden="true"
+              className="size-4 shrink-0"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+            >
+              <path d="M21.805 10.023H12.2v3.955h5.515c-.238 1.275-.96 2.356-2.045 3.081v2.56h3.307c1.935-1.782 3.051-4.407 3.051-7.523 0-.695-.062-1.385-.223-2.073Z" />
+              <path d="M12.2 22c2.762 0 5.084-.915 6.779-2.381l-3.307-2.56c-.915.613-2.088.976-3.472.976-2.668 0-4.929-1.802-5.736-4.222H3.046v2.643C4.731 19.805 8.198 22 12.2 22Z" />
+              <path d="M6.464 13.813A5.893 5.893 0 0 1 6.149 12c0-.629.108-1.24.315-1.813V7.544H3.046A9.978 9.978 0 0 0 2 12c0 1.613.386 3.14 1.046 4.456l3.418-2.643Z" />
+              <path d="M12.2 5.965c1.503 0 2.852.517 3.913 1.531l2.936-2.936C17.279 2.91 14.957 2 12.2 2 8.198 2 4.731 4.195 3.046 7.544l3.418 2.643C7.271 7.767 9.532 5.965 12.2 5.965Z" />
+            </svg>
           ) : (
-            <RiLoader3Fill className="animate-spin" />
+            <Loader2 className="size-4 animate-spin" />
           )}
           {action} with Google
         </Button>

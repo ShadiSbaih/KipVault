@@ -5,7 +5,7 @@ import { P } from "@/components/custom/p";
 import { Button } from "@/components/ui/button";
 import { IFile } from "@/lib/database/schema/file.model";
 import { getFiles } from "@/lib/fetch/files.fetch";
-import { RiFileAddFill, RiLoader3Fill } from "@remixicon/react";
+import { CloudUpload, Loader2 } from "lucide-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Image from "next/image";
 import { useEffect, useState } from "react";
@@ -81,7 +81,7 @@ const PageFiles = ({ page }: PageFilesProps) => {
   if (isLoading) {
     return (
       <div className="flex min-h-[260px] items-center justify-center rounded-band border-[1.5px] border-ink bg-paper p-8">
-        <RiLoader3Fill className="size-8 animate-spin text-ink" />
+        <Loader2 className="size-8 animate-spin text-ink" />
       </div>
     );
   }
@@ -121,7 +121,7 @@ const PageFiles = ({ page }: PageFilesProps) => {
             className="mt-6"
             onClick={() => document.getElementById("file-upload")?.click()}
           >
-            <RiFileAddFill />
+            <CloudUpload className="size-4" strokeWidth={2.1} />
             Upload to Vault
           </Button>
         )}
@@ -142,7 +142,7 @@ const PageFiles = ({ page }: PageFilesProps) => {
           ref={ref}
           className="flex h-fit w-full items-center justify-center py-6"
         >
-          {inView && <RiLoader3Fill className="size-6 animate-spin text-ink" />}
+          {inView && <Loader2 className="size-6 animate-spin text-ink" />}
         </div>
       )}
     </>

@@ -3,7 +3,7 @@
 import { cn } from "@/lib/utils";
 import { Button } from "../ui/button";
 import { useSidebar } from "../ui/sidebar";
-import { RiSidebarFoldFill, RiSidebarUnfoldFill } from "@remixicon/react";
+import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
 
 const SidebarTrigger = () => {
   const { toggleSidebar, state } = useSidebar();
@@ -19,9 +19,9 @@ const SidebarTrigger = () => {
       }}
     >
       {state === "expanded" ? (
-        <RiSidebarFoldFill className="size-4 text-ink" />
+        <PanelLeftClose className="size-[18px] text-ink" strokeWidth={2} />
       ) : (
-        <RiSidebarUnfoldFill className="size-4 text-ink" />
+        <PanelLeftOpen className="size-[18px] text-ink" strokeWidth={2} />
       )}
       <span className="sr-only">Toggle Sidebar</span>
     </Button>
