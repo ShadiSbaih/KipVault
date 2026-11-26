@@ -5,6 +5,20 @@ import { Subscription } from "@/lib/database/schema/subscription.model";
 import { pinata } from "@/lib/pinata/config";
 import { getCategoryFromMimeType, parseError } from "@/lib/utils";
 import { Hono } from "hono";
+import { z } from "zod";
+
+const uploadUrlSchema = z.object({
+  name: z.string().trim().min(1),
+  size: z.number().finite().nonnegative(),
+});
+
+const completeUploadSchema = z.object({
+  pinataId: z.string().min(1),
+  name: z.string().trim().min(1),
+  mimeType: z.string().optional(),
+  cid: z.string().min(1),
+  size: z.number().finite().nonnegative(),
+});
 
 const fileRoute = new Hono();
 
@@ -172,12 +186,95 @@ fileRoute.get("/:page", async (c) => {
   }
 });
 
-fileRoute.post("/upload", async (c) => {
+fileRoute.post("/upload-url", async (c) => {
   try {
     await db();
 
-    const data = await c.req.formData();
-    const file: File | null = data.get("file") as unknown as File;
+    const session = await getServerSession();
+
+    if (!session) {
+      return c.json(
+        {
+          url: null,
+          message: "Unauthorized",
+          description: "You need to be logged in to upload files",
+        },
+        { status: 401 }
+      );
+    }
+
+    const body = await c.req.json().catch(() => null);
+    const parsed = uploadUrlSchema.safeParse(body);
+
+    if (!parsed.success) {
+      return c.json(
+        {
+          url: null,
+          message: "Bad Request",
+          description: "Invalid file metadata",
+        },
+        { status: 400 }
+      );
+    }
+
+    const userId = session.user.id;
+    const userName = session.user.name || "User";
+    const subs = await Subscription.findOne({ subscriber: userId });
+
+    if (!subs) {
+      return c.json(
+        {
+          url: null,
+          message: "⚠️ Warning",
+          description:
+            "Subscription not found. Please log out and log in again to refresh your session.",
+        },
+        { status: 404 }
+      );
+    }
+
+    if (
+      subs.selectedStorage <= subs.usedStorage ||
+      subs.usedStorage + parsed.data.size > subs.selectedStorage
+    ) {
+      return c.json(
+        {
+          url: null,
+          message: "⚠️ Warning",
+          description:
+            "Storage limit exceeded. Delete some files to free up space.",
+        },
+        { status: 400 }
+      );
+    }
+
+    // Issue a short-lived signed URL so the browser uploads directly to Pinata,
+    // bypassing Vercel's 4.5 MB serverless request body limit.
+    const signedUrl = await pinata.upload.createSignedURL({
+      expires: 60,
+      name: parsed.data.name,
+      keyvalues: {
+        userId,
+        name: userName,
+      },
+    });
+
+    return c.json({ url: signedUrl }, { status: 200 });
+  } catch (error) {
+    console.log("Error in generating upload URL: ", error);
+
+    const err = parseError(error);
+
+    return c.json(
+      { url: null, message: "Error", description: err },
+      { status: 500 }
+    );
+  }
+});
+
+fileRoute.post("/upload/complete", async (c) => {
+  try {
+    await db();
 
     const session = await getServerSession();
 
@@ -188,14 +285,28 @@ fileRoute.post("/upload", async (c) => {
           message: "Unauthorized",
           description: "You need to be logged in to upload files",
         },
+        { status: 401 }
+      );
+    }
+
+    const body = await c.req.json().catch(() => null);
+    const parsed = completeUploadSchema.safeParse(body);
+
+    if (!parsed.success) {
+      return c.json(
         {
-          status: 401,
-        }
+          file: null,
+          message: "Bad Request",
+          description: "Invalid upload payload",
+        },
+        { status: 400 }
       );
     }
 
     const userId = session.user.id;
-    const name = session.user.name;
+    const userName = session.user.name || "User";
+    const { pinataId, name, cid, size } = parsed.data;
+    const mimeType = parsed.data.mimeType?.trim() || "application/octet-stream";
 
     const subs = await Subscription.findOne({ subscriber: userId });
 
@@ -212,7 +323,12 @@ fileRoute.post("/upload", async (c) => {
       );
     }
 
-    if (subs.selectedStorage <= subs.usedStorage) {
+    if (
+      subs.selectedStorage <= subs.usedStorage ||
+      subs.usedStorage + size > subs.selectedStorage
+    ) {
+      await pinata.files.delete([pinataId]).catch(() => {});
+
       return c.json(
         {
           message: "⚠️ Warning",
@@ -225,22 +341,15 @@ fileRoute.post("/upload", async (c) => {
       );
     }
 
-    const uploadData = await pinata.upload.file(file).addMetadata({
-      keyvalues: {
-        userId,
-        name,
-      },
-    });
-
-    const category = getCategoryFromMimeType(uploadData.mime_type);
+    const category = getCategoryFromMimeType(mimeType);
 
     const uploadedFile = await File.create({
-      pinataId: uploadData.id,
-      name: uploadData.name,
-      mimeType: uploadData.mime_type,
-      cid: uploadData.cid,
-      size: uploadData.size,
-      userInfo: { id: userId, name },
+      pinataId,
+      name,
+      mimeType,
+      cid,
+      size,
+      userInfo: { id: userId, name: userName },
       category,
     });
 
@@ -248,7 +357,7 @@ fileRoute.post("/upload", async (c) => {
       { subscriber: userId },
       {
         $inc: {
-          usedStorage: uploadData.size,
+          usedStorage: size,
         },
       }
     );
@@ -257,13 +366,13 @@ fileRoute.post("/upload", async (c) => {
       {
         message: "Upload Successful",
         category,
-        description: `File: ${uploadData.name}`,
+        description: `File: ${name}`,
         file: uploadedFile,
       },
       { status: 201 }
     );
   } catch (error) {
-    console.log("Error in file uploading: ", error);
+    console.log("Error in completing file upload: ", error);
 
     const err = parseError(error);
 

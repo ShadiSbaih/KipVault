@@ -5,7 +5,7 @@ import { RiFileAddFill } from "@remixicon/react";
 import { ChangeEvent, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import {
   Tooltip,
   TooltipContent,
@@ -13,6 +13,15 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { IFile } from "@/lib/database/schema/file.model";
+import { parseError } from "@/lib/utils";
+
+type PinataUploadResponse = {
+  id: string;
+  name: string;
+  cid: string;
+  size: number;
+  mime_type: string;
+};
 
 const UploadButton = () => {
   const queryClient = useQueryClient();
@@ -20,24 +29,50 @@ const UploadButton = () => {
   const [isUploading, setIsUploading] = useState(false);
 
   async function uploadFile(file: File) {
-    const formData = new FormData();
-    formData.append("file", file);
-
-    const res = await axios.post("/api/v1/files/upload", formData, {
-      headers: { "Content-Type": "multipart/form-data" },
-      onUploadProgress: (progressEvent) => {
-        const total = progressEvent.total || 1;
-        const loaded = progressEvent.loaded;
-        const percent = Math.round((loaded / total) * 100);
-
-        setFileProgress((prev) => ({
-          ...prev,
-          [file.name]: percent,
-        }));
-      },
+    const urlRes = await axios.post<{ url: string }>("/api/v1/files/upload-url", {
+      name: file.name,
+      size: file.size,
     });
 
-    return res.data;
+    const signedUrl = urlRes.data?.url;
+    if (!signedUrl) {
+      throw new Error("Could not obtain upload URL");
+    }
+
+    const formData = new FormData();
+    formData.append("file", file, file.name);
+
+    const pinataRes = await axios.post<{ data: PinataUploadResponse }>(
+      signedUrl,
+      formData,
+      {
+        onUploadProgress: (progressEvent) => {
+          const total = progressEvent.total || file.size || 1;
+          const loaded = progressEvent.loaded;
+          const percent = Math.min(100, Math.round((loaded / total) * 100));
+
+          setFileProgress((prev) => ({
+            ...prev,
+            [file.name]: percent,
+          }));
+        },
+      }
+    );
+
+    const uploadData = pinataRes.data?.data;
+    if (!uploadData?.id || !uploadData?.cid) {
+      throw new Error("Invalid response from storage provider");
+    }
+
+    const completeRes = await axios.post("/api/v1/files/upload/complete", {
+      pinataId: uploadData.id,
+      name: uploadData.name || file.name,
+      mimeType: uploadData.mime_type || file.type || "application/octet-stream",
+      cid: uploadData.cid,
+      size: uploadData.size ?? file.size,
+    });
+
+    return completeRes.data;
   }
 
   const mutation = useMutation({
@@ -63,18 +98,32 @@ const UploadButton = () => {
         description: newData?.description,
       });
     },
-    onError: (c) => {
-      toast(c.name, {
-        description: c.message,
+    onError: (error) => {
+      if (error instanceof AxiosError) {
+        const data = error.response?.data as
+          | { message?: string; description?: string; error?: string }
+          | undefined;
+        const title = data?.message || "Upload failed";
+        const description =
+          data?.description ||
+          data?.error ||
+          (error.response?.status === 413
+            ? "File exceeds the maximum single-request upload size."
+            : error.message);
+
+        toast(title, { description });
+        return;
+      }
+
+      toast("Upload failed", {
+        description: parseError(error),
       });
-    },
-    onSettled: () => {
-      setIsUploading(false);
     },
   });
 
   async function handleFileChange(e: ChangeEvent<HTMLInputElement>) {
-    const files = Array.from(e.target.files || []);
+    const input = e.target;
+    const files = Array.from(input.files || []);
 
     if (!files.length) {
       toast("No file selected", {
@@ -91,8 +140,12 @@ const UploadButton = () => {
     setFileProgress(progressMap);
     setIsUploading(true);
 
-    await Promise.all(files.map((file) => mutation.mutateAsync(file)));
-    e.target.value = "";
+    try {
+      await Promise.allSettled(files.map((file) => mutation.mutateAsync(file)));
+    } finally {
+      setIsUploading(false);
+      input.value = "";
+    }
   }
 
   return (
