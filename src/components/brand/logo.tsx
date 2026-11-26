@@ -14,7 +14,7 @@ const sizeMap = {
 };
 
 /**
- * Geometric KipVault brand mark and wordmark styled to DESIGN.md poster tokens.
+ * Geometric KipVault brand mark and wordmark styled to KipVault poster tokens.
  */
 export function KipVaultLogo({
   variant = "default",

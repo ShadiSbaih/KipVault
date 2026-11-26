@@ -20,7 +20,7 @@
 
 **KipVault** is a full-stack file storage and collaboration web application built with Next.js App Router, Hono, Better Auth, MongoDB, and Pinata IPFS. Every uploaded asset is pinned to IPFS, indexed in MongoDB with automatic MIME-type classification, and retrieved via short-lived signed gateway URLs.
 
-The interface implements the **KipVault Design System** defined in [`DESIGN.md`](./DESIGN.md): a high-contrast light editorial system anchored by Paper (`#ffffff`), Ink (`#0d0d0d`), Butter Highlight (`#fbda5f`), Fog (`#edeef0`), and Signal Blue (`#006aff`), paired with **Phudu** uppercase display typography and **Inter** UI typography.
+The interface implements the **KipVault Design System**: a high-contrast light editorial system anchored by Paper (`#ffffff`), Ink (`#0d0d0d`), Butter Highlight (`#fbda5f`), Fog (`#edeef0`), and Signal Blue (`#006aff`), paired with **Phudu** uppercase display typography and **Inter** UI typography.
 
 ---
 
@@ -57,17 +57,16 @@ The interface implements the **KipVault Design System** defined in [`DESIGN.md`]
 
 ```text
 kipvault/
-├── DESIGN.md                                  # Brand & UI design system specification
 ├── .env.example                               # Environment variable template
 ├── package.json
-├── tailwind.config.ts                         # DESIGN.md tokens, fonts, and radii
+├── tailwind.config.ts                         # KipVault design tokens, fonts, and radii
 ├── public/
 │   ├── kipvault-logo.svg                      # Full KipVault vector lockup
-│   ├── document.png                           # DESIGN.md category icon (Documents)
-│   ├── image.png                              # DESIGN.md category icon (Images)
-│   ├── video.png                              # DESIGN.md category icon (Videos)
-│   ├── other.png                              # DESIGN.md category icon (Others/Archive)
-│   └── not-found.png                          # DESIGN.md empty vault room illustration
+│   ├── document.png                           # KipVault category icon (Documents)
+│   ├── image.png                              # KipVault category icon (Images)
+│   ├── video.png                              # KipVault category icon (Videos)
+│   ├── other.png                              # KipVault category icon (Others/Archive)
+│   └── not-found.png                          # KipVault empty vault room illustration
 └── src/
     ├── middleware.ts                          # Auth guard & / -> /dashboard redirect
     ├── action/
@@ -115,7 +114,7 @@ kipvault/
     │   ├── custom/{p.tsx,sidebar-trigger.tsx}
     │   ├── icons/kebab.tsx
     │   ├── styles/button.ts
-    │   └── ui/*                               # DESIGN.md-styled Radix/shadcn primitives
+    │   └── ui/*                               # KipVault-styled Radix/shadcn primitives
     ├── context/query-provider.tsx
     ├── hooks/{use-mobile.tsx,use-toast.ts}
     ├── lib/
