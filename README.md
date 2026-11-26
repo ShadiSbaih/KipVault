@@ -4,7 +4,7 @@
   <p><strong>Lock it. Pin it. Keep it.</strong><br />Editorial-grade cloud file vault and permissioned sharing platform backed by Pinata IPFS.</p>
 
   <p>
-    <img src="https://img.shields.io/badge/Next.js-15.1.4-0d0d0d?style=for-the-badge&logo=nextdotjs&logoColor=fbda5f" alt="Next.js 15" />
+    <img src="https://img.shields.io/badge/Next.js-15.5.29-0d0d0d?style=for-the-badge&logo=nextdotjs&logoColor=fbda5f" alt="Next.js 15" />
     <img src="https://img.shields.io/badge/React-19-0d0d0d?style=for-the-badge&logo=react&logoColor=fbda5f" alt="React 19" />
     <img src="https://img.shields.io/badge/TypeScript-5-0d0d0d?style=for-the-badge&logo=typescript&logoColor=fbda5f" alt="TypeScript 5" />
     <img src="https://img.shields.io/badge/Hono-4.6-0d0d0d?style=for-the-badge&logo=hono&logoColor=fbda5f" alt="Hono" />
@@ -42,7 +42,7 @@ The interface implements the **KipVault Design System** defined in [`DESIGN.md`]
 
 | Layer | Technology |
 | :--- | :--- |
-| **Framework** | Next.js `15.1.4` (App Router, Turbopack), React `19`, TypeScript `5` |
+| **Framework** | Next.js `15.5.29` (App Router, Turbopack), React `19`, TypeScript `5` |
 | **Styling & UI** | Tailwind CSS `3.4`, Radix UI primitives, Remixicon, Lucide React, Sonner |
 | **Typography** | `Phudu` (display headings) & `Inter` (UI & body) via `next/font/google` |
 | **API Layer** | Hono `4.6` (`/api/v1/*`) + Next.js Server Actions |
