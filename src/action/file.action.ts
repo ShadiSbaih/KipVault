@@ -7,8 +7,10 @@ import {
 import { FIVE_MINUTES } from "@/lib/contants";
 import db from "@/lib/database/db";
 import { File, IFile } from "@/lib/database/schema/file.model";
+import { syncAndGetSubscription } from "@/lib/database/subscription.helper";
 import { pinata } from "@/lib/pinata/config";
 import { ActionResponse, parseError } from "@/lib/utils";
+import { getServerSession } from "./auth.action";
 
 export async function generateUrl(cid: string) {
   try {
@@ -29,13 +31,42 @@ export async function generateUrl(cid: string) {
 export async function deleteFile(file: IFile) {
   await db();
 
-  const { pinataId, category, _id } = file;
+  const session = await getServerSession();
+  if (!session) {
+    throw new Error("Unauthorized");
+  }
 
-  await pinata.files.delete([pinataId]);
+  const dbFile = await File.findOne({ pinataId: file.pinataId });
+  if (!dbFile) {
+    throw new Error("File not found");
+  }
 
-  await File.deleteOne({ pinataId });
+  const ownerId = String(dbFile.userInfo.id);
+  const isOwner = ownerId === session.user.id;
+  const hasDeletePermission = dbFile.sharedWith?.some(
+    (entry) =>
+      entry.email === session.user.email &&
+      entry.permissions.includes("file:delete")
+  );
 
-  return { status: 200, category, fileId: _id };
+  if (!isOwner && !hasDeletePermission) {
+    throw new Error("You do not have permission to delete this file");
+  }
+
+  await pinata.files.delete([dbFile.pinataId]);
+
+  await File.deleteOne({ _id: dbFile._id });
+
+  await syncAndGetSubscription(ownerId);
+
+  const normalizedCategory =
+    dbFile.category === "audio" ? "other" : dbFile.category;
+
+  return ActionResponse({
+    status: 200,
+    category: normalizedCategory,
+    fileId: String(dbFile._id),
+  });
 }
 
 export async function updateFilePermissions(

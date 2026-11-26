@@ -1,7 +1,9 @@
 import { getServerSession } from "@/action/auth.action";
+import { MAX_SINGLE_UPLOAD_BYTES } from "@/lib/contants";
 import db from "@/lib/database/db";
 import { File } from "@/lib/database/schema/file.model";
 import { Subscription } from "@/lib/database/schema/subscription.model";
+import { syncAndGetSubscription } from "@/lib/database/subscription.helper";
 import { pinata } from "@/lib/pinata/config";
 import { getCategoryFromMimeType, parseError } from "@/lib/utils";
 import { Hono } from "hono";
@@ -147,12 +149,18 @@ fileRoute.get("/:page", async (c) => {
       );
     }
 
+    const categoryFilter =
+      category === "other" ? { $in: ["other", "audio"] } : category;
+
     const totalFiles = await File.countDocuments({
       "userInfo.id": userId,
-      category,
+      category: categoryFilter,
     });
 
-    const files = await File.find({ "userInfo.id": userId, category })
+    const files = await File.find({
+      "userInfo.id": userId,
+      category: categoryFilter,
+    })
       .skip((page - 1) * FILE_SIZE)
       .limit(FILE_SIZE)
       .sort({ createdAt: -1 })
@@ -217,21 +225,20 @@ fileRoute.post("/upload-url", async (c) => {
       );
     }
 
-    const userId = session.user.id;
-    const userName = session.user.name || "User";
-    const subs = await Subscription.findOne({ subscriber: userId });
-
-    if (!subs) {
+    if (parsed.data.size > MAX_SINGLE_UPLOAD_BYTES) {
       return c.json(
         {
           url: null,
           message: "⚠️ Warning",
-          description:
-            "Subscription not found. Please log out and log in again to refresh your session.",
+          description: "Maximum single-file upload size is 100 MB.",
         },
-        { status: 404 }
+        { status: 400 }
       );
     }
+
+    const userId = session.user.id;
+    const userName = session.user.name || "User";
+    const subs = await syncAndGetSubscription(userId);
 
     if (
       subs.selectedStorage <= subs.usedStorage ||
@@ -251,7 +258,7 @@ fileRoute.post("/upload-url", async (c) => {
     // Issue a short-lived signed URL so the browser uploads directly to Pinata,
     // bypassing Vercel's 4.5 MB serverless request body limit.
     const signedUrl = await pinata.upload.createSignedURL({
-      expires: 60,
+      expires: 300,
       name: parsed.data.name,
       keyvalues: {
         userId,
@@ -308,20 +315,7 @@ fileRoute.post("/upload/complete", async (c) => {
     const { pinataId, name, cid, size } = parsed.data;
     const mimeType = parsed.data.mimeType?.trim() || "application/octet-stream";
 
-    const subs = await Subscription.findOne({ subscriber: userId });
-
-    if (!subs) {
-      return c.json(
-        {
-          message: "⚠️ Warning",
-          category: null,
-          description:
-            "Subscription not found. Please log out and log in again to refresh your session.",
-          file: null,
-        },
-        { status: 404 }
-      );
-    }
+    const subs = await syncAndGetSubscription(userId);
 
     if (
       subs.selectedStorage <= subs.usedStorage ||

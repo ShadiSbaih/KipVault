@@ -1,5 +1,6 @@
 import mongoose, { Model, Schema } from "mongoose";
 import { Document } from "mongoose";
+import { DEFAULT_STORAGE_LIMIT } from "@/lib/contants";
 
 export interface ISubscription {
   subscriber: mongoose.Types.ObjectId | string; // User who owns the storage quota
@@ -18,7 +19,11 @@ const subscriptionSchema: Schema<SubscriptionModel> = new Schema(
       ref: "User",
       required: true,
     },
-    selectedStorage: { type: Number, required: true, default: 1073741824 }, // 1 GB in Bytes
+    selectedStorage: {
+      type: Number,
+      required: true,
+      default: DEFAULT_STORAGE_LIMIT,
+    }, // in Bytes
     usedStorage: { type: Number, required: true, default: 0 }, // in Bytes
   },
   { timestamps: true }

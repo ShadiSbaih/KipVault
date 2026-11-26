@@ -22,27 +22,43 @@ export function parseError(error: unknown) {
 }
 
 export function formatFileSize(sizeInBytes: number): string {
-  if (sizeInBytes === 0) return "0 Bytes";
+  if (!sizeInBytes || sizeInBytes <= 0) return "0 Bytes";
 
   const units = ["Bytes", "KB", "MB", "GB", "TB"];
   const k = 1024; // 1 KB = 1024 Bytes
-  const i = Math.floor(Math.log(sizeInBytes) / Math.log(k)); // Determine the unit
+  const i = Math.min(
+    units.length - 1,
+    Math.floor(Math.log(sizeInBytes) / Math.log(k))
+  );
 
   const size = (sizeInBytes / Math.pow(k, i)).toFixed(2); // Convert size to the appropriate unit
   return `${size} ${units[i]}`; // Combine size with unit
 }
 
-type FileCategory = "document" | "video" | "image" | "audio" | "other";
+type FileCategory = "document" | "video" | "image" | "other";
+
+const DOCUMENT_MIME_TYPES = new Set([
+  "application/pdf",
+  "application/msword",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  "application/vnd.ms-excel",
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  "application/vnd.ms-powerpoint",
+  "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+  "application/rtf",
+  "text/plain",
+  "text/csv",
+  "text/markdown",
+]);
 
 export function getCategoryFromMimeType(mimeType: string): FileCategory {
+  const normalized = mimeType.toLowerCase().split(";")[0].trim();
 
-  if (mimeType === "application/pdf") return "document";
+  if (DOCUMENT_MIME_TYPES.has(normalized)) return "document";
 
-  if (mimeType.startsWith("video/")) return "video";
+  if (normalized.startsWith("video/")) return "video";
 
-  if (mimeType.startsWith("image/")) return "image";
-
-  if (mimeType.startsWith("audio/")) return "audio";
+  if (normalized.startsWith("image/")) return "image";
 
   return "other";
 }

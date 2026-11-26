@@ -13,6 +13,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { IFile } from "@/lib/database/schema/file.model";
+import { MAX_SINGLE_UPLOAD_BYTES } from "@/lib/contants";
 import { parseError } from "@/lib/utils";
 
 type PinataUploadResponse = {
@@ -29,6 +30,12 @@ const UploadButton = () => {
   const [isUploading, setIsUploading] = useState(false);
 
   async function uploadFile(file: File) {
+    if (file.size > MAX_SINGLE_UPLOAD_BYTES) {
+      throw new Error(
+        `"${file.name}" exceeds the 100 MB single-file upload limit.`
+      );
+    }
+
     const urlRes = await axios.post<{ url: string }>("/api/v1/files/upload-url", {
       name: file.name,
       size: file.size,

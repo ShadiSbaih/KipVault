@@ -14,8 +14,8 @@ const SubscriptionPage = () => {
   } = useQuery({
     queryKey: ["subscription"],
     queryFn: getSubscription,
-    refetchOnMount: false,
-    refetchOnReconnect: false,
+    refetchOnMount: "always",
+    refetchOnReconnect: true,
     refetchOnWindowFocus: false,
   });
 
