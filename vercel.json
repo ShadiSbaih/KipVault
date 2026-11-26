@@ -1,0 +1,10 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "schedules": {
+    "mongodb-keep-alive": {
+      "schedule": "*/15 * * * *",
+      "path": "/api/health",
+      "requestMethod": "GET"
+    }
+  }
+}
